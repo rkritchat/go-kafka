@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/spf13/viper"
 	"go-kafka/common"
 	"go-kafka/service"
 	"net/http"
@@ -8,16 +9,18 @@ import (
 
 func main() {
 	//Initial DB
-   common.InitConfig()
-   db := common.InitDB()
-   defer db.Close()
+	common.InitConfig()
+	db := common.InitDB()
+	defer db.Close()
 
-   //Initial Kafka Consumer
-   c := common.KafkaConsumer()
-   //defer c.Close()
+	//Initial Kafka Consumer
+	c := common.KafkaConsumer()
+	defer c.Close()
 
-   s := service.NewHandler(&db,c)
-   s.Consumer()
-   r := common.InitRouter(s)
-   panic(http.ListenAndServe(":8080", r))
+	s := service.NewHandler(&db, c)
+	r := common.InitRouter(s)
+	//init consumer
+	go s.Consumer()
+
+	panic(http.ListenAndServe(viper.GetString("server.port"), r))
 }

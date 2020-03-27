@@ -9,9 +9,10 @@ import (
 	"go-kafka/path"
 	"go-kafka/service"
 	"go-kafka/str"
+	"net/http"
 )
 
-func InitDB() gorm.DB{
+func InitDB() gorm.DB {
 	db, err := gorm.Open("mysql", viper.GetString("db"))
 	if err != nil {
 		panic(err)
@@ -20,7 +21,7 @@ func InitDB() gorm.DB{
 	return *db
 }
 
-func InitConfig(){
+func InitConfig() {
 	viper.SetConfigName(str.Config)
 	viper.AddConfigPath(str.Dot)
 	if err := viper.ReadInConfig(); err != nil {
@@ -30,7 +31,7 @@ func InitConfig(){
 
 func InitRouter(h *service.Handler) *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc(path.Inquiry,h.Inquiry)
+	r.HandleFunc(path.Inquiry, h.Inquiry).Methods(http.MethodGet)
 	return r
 }
 
@@ -45,7 +46,7 @@ func KafkaConsumer() *kafka.Consumer {
 		panic(err)
 	}
 
-	if err := c.SubscribeTopics([]string{viper.GetString("kafka.topic"), "^aRegex.*[Tt]opic"}, nil); err != nil{
+	if err := c.SubscribeTopics([]string{viper.GetString("kafka.topic"), "^aRegex.*[Tt]opic"}, nil); err != nil {
 		panic(err)
 	}
 

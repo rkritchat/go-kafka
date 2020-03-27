@@ -4,3 +4,5 @@ kafka:
   host: localhost:9092
   group: mygroup
   auto-offset: earliest
+server:
+  port: ":8080"
