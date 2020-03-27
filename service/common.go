@@ -5,14 +5,16 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type Handler struct {
+type Handlers struct {
 	db *gorm.DB
-	c *kafka.Consumer
+	c  *kafka.Consumer
+	p  *kafka.Producer
 }
 
-func NewHandler(db *gorm.DB, c *kafka.Consumer) *Handler{
-	return &Handler{
+func NewHandlers(db *gorm.DB, c *kafka.Consumer, p *kafka.Producer) *Handlers {
+	return &Handlers{
 		db: db,
-		c: c,
+		c:  c,
+		p:  p,
 	}
 }

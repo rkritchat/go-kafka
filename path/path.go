@@ -1,5 +1,6 @@
 package path
 
-const(
-	Inquiry = "/inquiry"
+const (
+	Inquiry  = "/inquiry"
+	Register = "/register"
 )

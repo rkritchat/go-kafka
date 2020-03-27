@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (h *Handler) Inquiry(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) Inquiry(w http.ResponseWriter, r *http.Request) {
 	rs := h.db.Find(&[]entity.UserInfo{})
 	if rs.Error != nil {
 		return

@@ -1,54 +1,26 @@
 package common
 
 import (
-	"github.com/confluentinc/confluent-kafka-go/kafka"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
-	"github.com/spf13/viper"
-	"go-kafka/path"
-	"go-kafka/service"
+	"encoding/json"
+	"go-kafka/model"
 	"go-kafka/str"
 	"net/http"
 )
 
-func InitDB() gorm.DB {
-	db, err := gorm.Open("mysql", viper.GetString("db"))
+func RespErr(w http.ResponseWriter, err error) {
+	w.Header().Set(str.ContentType, str.ApplicationJson)
+	json.NewEncoder(w).Encode(initCommonRes("", err))
+}
+
+func RespSuccess(w http.ResponseWriter, s string) {
+	w.Header().Set(str.ContentType, str.ApplicationJson)
+	json.NewEncoder(w).Encode(initCommonRes(s, nil))
+}
+
+func initCommonRes(s string, err error) model.Common {
 	if err != nil {
-		panic(err)
-	}
-	db.SingularTable(true)
-	return *db
-}
-
-func InitConfig() {
-	viper.SetConfigName(str.Config)
-	viper.AddConfigPath(str.Dot)
-	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
-	}
-}
-
-func InitRouter(h *service.Handler) *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc(path.Inquiry, h.Inquiry).Methods(http.MethodGet)
-	return r
-}
-
-func KafkaConsumer() *kafka.Consumer {
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": viper.GetString("kafka.host"),
-		"group.id":          viper.GetString("kafka.group"),
-		"auto.offset.reset": viper.GetString("kafka.auto-offset"),
-	})
-
-	if err != nil {
-		panic(err)
+		return model.Common{Status: str.Failed, Desc: err.Error()}
 	}
 
-	if err := c.SubscribeTopics([]string{viper.GetString("kafka.topic"), "^aRegex.*[Tt]opic"}, nil); err != nil {
-		panic(err)
-	}
-
-	return c
+	return model.Common{Status: str.Success, Desc: s}
 }
